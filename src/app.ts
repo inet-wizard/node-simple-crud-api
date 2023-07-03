@@ -7,9 +7,14 @@ import { validateUserData, validateUuid } from './utils/validation';
 import { configDB } from './libs/dbHelpers';
 
 class App {
-  constructor() {}
+  constructor(private db: DB) {
+    this.db = db;
+  }
 
-  async getUsers(res: http.ServerResponse) {}
+  async getUsers(res: http.ServerResponse) {
+    const users = await this.db.getUsers();
+    sendResponse(res, HttpStatusCodes.OK, users);
+  }
 
   async getUser(id: string, res: http.ServerResponse) {}
 
