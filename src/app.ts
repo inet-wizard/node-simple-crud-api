@@ -56,9 +56,37 @@ class App {
     });
   }
 
-  async getReqHandler(req: http.IncomingMessage, res: http.ServerResponse) {}
+  async getReqHandler(req: http.IncomingMessage, res: http.ServerResponse) {
+    const id = req.url ? parseRequest(req.url) : null;
 
-  async postReqHandler(req: http.IncomingMessage, res: http.ServerResponse) {}
+    if (id) {
+      await this.getUser(id, res);
+    } else {
+      await this.getUsers(res);
+    }
+  }
+
+  async postReqHandler(req: http.IncomingMessage, res: http.ServerResponse) {
+    let data: string = '';
+
+    req.on('data', (dataChunk) => {
+      data += dataChunk;
+    });
+
+    req.on('end', async () => {
+      const body = JSON.parse(data);
+      const isValidUser = validateUserData(body);
+
+      if (isValidUser) {
+        const newUser = await this.db.createUser(body);
+        sendResponse(res, HttpStatusCodes.CREATED, newUser);
+      } else {
+        sendResponse(res, HttpStatusCodes.BAD_REQUEST, {
+          error: ErrorMessages.INVALID_DATA,
+        });
+      }
+    });
+  }
 
   async putReqHandler(req: http.IncomingMessage, res: http.ServerResponse) {}
 
