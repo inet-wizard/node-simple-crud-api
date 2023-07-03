@@ -106,7 +106,33 @@ class App {
     }
   }
 
-  async deleteReqHandler(req: http.IncomingMessage, res: http.ServerResponse) {}
+  async deleteReqHandler(req: http.IncomingMessage, res: http.ServerResponse) {
+    const id = req.url ? parseRequest(req.url) : null;
+
+    if (id) {
+      const isValidId = validateUuid(id);
+
+      if (isValidId) {
+        const deletedUser = await this.db.deleteUser(id);
+
+        if (deletedUser) {
+          sendResponse(res, HttpStatusCodes.NO_CONTENT, {
+            message: ErrorMessages.DELETED_USER,
+          });
+        } else {
+          sendResponse(res, HttpStatusCodes.NOT_FOUND, {
+            error: `User with id ${id} does not exist`,
+          });
+        }
+      } else {
+        sendResponse(res, HttpStatusCodes.BAD_REQUEST, {
+          error: ErrorMessages.INVALID_ID,
+        });
+      }
+    } else {
+      sendResponse(res, HttpStatusCodes.NOT_FOUND, { error: ErrorMessages.NO_USER_ID });
+    }
+  }
 
   async requestHandler(req: http.IncomingMessage, res: http.ServerResponse) {
     try {
