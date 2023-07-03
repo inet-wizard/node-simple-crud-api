@@ -119,3 +119,41 @@ describe('Case #2. Test error handling', () => {
     expect(response.statusCode).toBe(400);
   });
 });
+
+describe('Case #3. Test user data validation', () => {
+  it('should respond with 400 error on POST /api/users/ request with the lack of the "username" field', async () => {
+    const partialUser: Partial<IUser> = { ...testUser };
+    delete partialUser['username'];
+    const response = await mockApp.post(BASE_URL).send(partialUser);
+    expect(response.statusCode).toBe(400);
+    expect(response.body.error).toEqual(ErrorMessages.INVALID_DATA);
+  });
+
+  it('should respond with 400 error on POST /api/users/ request with the empty string in the "username" field', async () => {
+    const response = await mockApp.post(BASE_URL).send(testUser2);
+    expect(response.statusCode).toBe(400);
+    expect(response.body.error).toEqual(ErrorMessages.INVALID_DATA);
+  });
+
+  it('should respond with 400 error on POST /api/users/ request with the lack of the "age" field', async () => {
+    const partialUser: Partial<IUser> = { ...testUser };
+    delete partialUser['age'];
+    const response = await mockApp.post(BASE_URL).send(partialUser);
+    expect(response.statusCode).toBe(400);
+    expect(response.body.error).toEqual(ErrorMessages.INVALID_DATA);
+  });
+
+  it('should respond with 400 error on POST /api/users/ request with the incorrect "age" field', async () => {
+    const response = await mockApp.post(BASE_URL).send(testUser3);
+    expect(response.statusCode).toBe(400);
+    expect(response.body.error).toEqual(ErrorMessages.INVALID_DATA);
+  });
+
+  it('should respond with 400 error on POST /api/users/ request with the lack of the "hobbies" field', async () => {
+    const partialUser: Partial<IUser> = { ...testUser };
+    delete partialUser['hobbies'];
+    const response = await mockApp.post(BASE_URL).send(partialUser);
+    expect(response.statusCode).toBe(400);
+    expect(response.body.error).toEqual(ErrorMessages.INVALID_DATA);
+  });
+});
