@@ -16,7 +16,24 @@ class App {
     sendResponse(res, HttpStatusCodes.OK, users);
   }
 
-  async getUser(id: string, res: http.ServerResponse) {}
+  async getUser(id: string, res: http.ServerResponse) {
+    const isValidId = validateUuid(id);
+
+    if (isValidId) {
+      const user = await this.db.getUser(id);
+      if (user) {
+        sendResponse(res, HttpStatusCodes.OK, user);
+      } else {
+        sendResponse(res, HttpStatusCodes.NOT_FOUND, {
+          error: `User with id ${id} not found`,
+        });
+      }
+    } else {
+      sendResponse(res, HttpStatusCodes.BAD_REQUEST, {
+        error: ErrorMessages.INVALID_ID,
+      });
+    }
+  }
 
   async updateUser(req: http.IncomingMessage, res: http.ServerResponse, id: string) {}
 
