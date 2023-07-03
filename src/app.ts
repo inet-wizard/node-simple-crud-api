@@ -88,7 +88,23 @@ class App {
     });
   }
 
-  async putReqHandler(req: http.IncomingMessage, res: http.ServerResponse) {}
+  async putReqHandler(req: http.IncomingMessage, res: http.ServerResponse) {
+    const id = req.url ? parseRequest(req.url) : null;
+
+    if (id) {
+      const isValidId = validateUuid(id);
+
+      if (isValidId) {
+        await this.updateUser(req, res, id);
+      } else {
+        sendResponse(res, HttpStatusCodes.BAD_REQUEST, {
+          error: ErrorMessages.INVALID_ID,
+        });
+      }
+    } else {
+      sendResponse(res, HttpStatusCodes.NOT_FOUND, { error: `User id is not provided` });
+    }
+  }
 
   async deleteReqHandler(req: http.IncomingMessage, res: http.ServerResponse) {}
 
