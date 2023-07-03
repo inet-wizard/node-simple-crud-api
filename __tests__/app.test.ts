@@ -73,3 +73,49 @@ describe('Case #1. Test CRUD API methods', () => {
     expect(response.statusCode).toBe(204);
   });
 });
+
+describe('Case #2. Test error handling', () => {
+  const validId = v4();
+  const invalidId = validId.split('-').join('');
+
+  it('should respond with status 404 on the GET request for non-existing endpoint', async () => {
+    const response = await mockApp.get('/test');
+    expect(response.statusCode).toBe(404);
+  });
+
+  it('should respond with status 404 when trying to use the unsupported method', async () => {
+    const response = await mockApp.patch(BASE_URL);
+    expect(response.statusCode).toBe(501);
+    expect(response.body.error).toEqual(ErrorMessages.UNSUPPORTED_METHOD);
+  });
+
+  it('should respond with 404 error on GET /api/users/:id request with valid UUID', async () => {
+    const response = await mockApp.get(`${BASE_URL}/${validId}`);
+    expect(response.statusCode).toBe(404);
+  });
+
+  it('should respond with 400 error on GET /api/users/:id request with invalid UUID', async () => {
+    const response = await mockApp.get(`${BASE_URL}/${invalidId}`);
+    expect(response.statusCode).toBe(400);
+  });
+
+  it('should respond with 404 error on PUT /api/users/:id request with valid UUID', async () => {
+    const response = await mockApp.put(`${BASE_URL}/${validId}`).send({ age: 30 });
+    expect(response.statusCode).toBe(404);
+  });
+
+  it('should respond with 400 error on PUT /api/users/:id request with invalid UUID', async () => {
+    const response = await mockApp.put(`${BASE_URL}/${invalidId}`).send({ age: 30 });
+    expect(response.statusCode).toBe(400);
+  });
+
+  it('should respond with 404 error on DELETE /api/users/:id request with valid UUID', async () => {
+    const response = await mockApp.delete(`${BASE_URL}/${validId}`);
+    expect(response.statusCode).toBe(404);
+  });
+
+  it('should respond with 400 error on DELETE /api/users/:id request with invalid UUID', async () => {
+    const response = await mockApp.delete(`${BASE_URL}/${invalidId}`);
+    expect(response.statusCode).toBe(400);
+  });
+});
