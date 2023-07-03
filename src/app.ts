@@ -35,7 +35,26 @@ class App {
     }
   }
 
-  async updateUser(req: http.IncomingMessage, res: http.ServerResponse, id: string) {}
+  async updateUser(req: http.IncomingMessage, res: http.ServerResponse, id: string) {
+    let data: string = '';
+
+    req.on('data', (dataChunk) => {
+      data += dataChunk;
+    });
+
+    req.on('end', async () => {
+      const body = JSON.parse(data);
+      const updatedUser = await this.db.updateUser(id, body);
+
+      if (updatedUser) {
+        sendResponse(res, HttpStatusCodes.OK, updatedUser);
+      } else {
+        sendResponse(res, HttpStatusCodes.NOT_FOUND, {
+          error: `User with id ${id} not found`,
+        });
+      }
+    });
+  }
 
   async getReqHandler(req: http.IncomingMessage, res: http.ServerResponse) {}
 
