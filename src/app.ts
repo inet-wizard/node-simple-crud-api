@@ -164,6 +164,7 @@ class App {
           });
       }
     } catch (error) {
+      configDB.end();
       sendResponse(res, HttpStatusCodes.INTERNAL_SERVER_ERROR, {
         error: ErrorMessages.SERVER_ERROR,
       });
